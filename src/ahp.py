@@ -27,32 +27,4 @@ def is_valid_judgment_matrix(matrix):
 def calculate_weights(matrix):
     """计算判断矩阵的权重"""
     is_valid_judgment_matrix(matrix)
-
-    eigenvalues, eigenvectors = np.linalg.eig(matrix)
-    max_idx = np.argmax(eigenvalues.real)
-    lambda_max = eigenvalues[max_idx].real
-
-    weights = eigenvectors[:, max_idx].real
-    weights = weights / weights.sum()
-
-    n = matrix.shape[0]
-    RI = {1: 0, 2: 0, 3: 0.58, 4: 0.90, 5: 1.12, 6: 1.24, 7: 1.32, 8: 1.41, 9: 1.45}
-    CI = (lambda_max - n) / (n - 1)
-    CR = CI / RI[n]
-
-    if CR >= 0.1:
-        raise ValueError(f"一致性检验未通过: CR={CR:.4f} >= 0.1")
-
-    return weights, lambda_max, CR
-
-
-# 执行
-df = load_raw("judgment_matrix.csv")
-data_name = df.columns[1:].tolist()
-matrix_values = df.iloc[:, 1:].values.astype(float)
-
-is_valid_judgment_matrix(matrix_values)
-weights, lambda_max, CR = calculate_weights(matrix_values)
-print(f"权重: {weights}")
-print(f"最大特征值: {lambda_max}")
-print(f"CR: {CR}")
+    
