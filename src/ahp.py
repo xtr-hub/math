@@ -29,16 +29,39 @@ def is_valid_judgment_matrix(matrix : ndarray):
         raise ValueError("所有元素必须为正数")
     return True
 
-def calaulate_weights_vectors(matrix : ndarray, weight_vector_type : WeightVectorType):
-    """归一化矩阵并返回权重向量"""
+def calculate_weight_vector(matrix : ndarray, weight_vector_type : WeightVectorType):
+    """计算特征值与权重向量
+    返回 (lambda_max, weight_vector) — lambda_max 为最大特征值，weight_vector 为归一化权重向量。
+    """
+    n = matrix.shape[0]
+
     match weight_vector_type:
+        case WeightVectorType.ARIAVE:
+            # 算术平均法: 每列归一化后按行求平均, 再归一化
+            col_sum = np.sum(matrix, axis=0)
+            norm_matrix = matrix / col_sum  # 每列和为 1
+            weight = np.sum(norm_matrix, axis=1)  # 按行求和
+            weight = weight / np.sum(weight)  # 归一化
+
+        case WeightVectorType.GEOAVE:
+            # 几何平均法: 每行求几何平均, 再归一化
+            row_prod = np.prod(matrix, axis=1)  # 每行的乘积
+            geo_mean = row_prod ** (1 / n)  # 开 n 次方
+            weight = geo_mean / np.sum(geo_mean)  # 归一化
+
         case WeightVectorType.EIGVEC:
-            # 这里按列求平均
-            n = matrix.shape[0]
-            a_sum = np.sum(matrix, axis=0)
-            stand_a = matrix / a_sum # 这里算完后每列的和为1,矩阵所有数之和为n
-            wig_vec = np.sum(stand_a, axis=1) / n
-            print(wig_vec)
+            # 特征向量法: 最大特征值对应的特征向量, 归一化
+            eig_vals, eig_vecs = np.linalg.eig(matrix)
+            max_idx = np.argmax(np.real(eig_vals))  # 实部最大的特征值索引
+            weight = np.real(eig_vecs[:, max_idx])  # 取对应特征向量的实部
+            weight = weight / np.sum(weight)  # 归一化
+
+    # 通过归一化后的权重向量反推 lambda_max: Aw = λ_max * w
+    Aw = matrix @ weight
+    # λ_max = 均值 (Aw_i / w_i)
+    lambda_max = np.mean(Aw / weight)
+
+    return lambda_max, weight
             
 def calculate_weights(matrix : ndarray, weight_vector_type=WeightVectorType.EIGVEC):
     """计算判断矩阵的权重"""
