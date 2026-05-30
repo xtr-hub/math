@@ -11,6 +11,8 @@ def load_raw(filename: str) -> pd.DataFrame:
     path = DATA_DIR / "raw" / filename
     if path.suffix == ".csv":
         return pd.read_csv(path)
+    if path.suffix in (".xlsx", ".xls"):
+        return pd.read_excel(path, engine="openpyxl")
     if path.suffix == ".parquet":
         return pd.read_parquet(path)
     raise ValueError(f"Unsupported format: {path.suffix}")

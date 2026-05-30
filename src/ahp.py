@@ -34,9 +34,11 @@ def calaulate_weights_vectors(matrix : ndarray, weight_vector_type : WeightVecto
     match weight_vector_type:
         case WeightVectorType.EIGVEC:
             # 这里按列求平均
-            n = matrix.shape[1]
-            n_max = max(n)
-            print(f"n_max的值为{n_max}")
+            n = matrix.shape[0]
+            a_sum = np.sum(matrix, axis=0)
+            stand_a = matrix / a_sum # 这里算完后每列的和为1,矩阵所有数之和为n
+            wig_vec = np.sum(stand_a, axis=1) / n
+            print(wig_vec)
             
 def calculate_weights(matrix : ndarray, weight_vector_type=WeightVectorType.EIGVEC):
     """计算判断矩阵的权重"""

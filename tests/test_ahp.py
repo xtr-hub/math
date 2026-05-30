@@ -6,5 +6,5 @@ from src.data import save_processed
 from src.data import load_raw
 
 def test_calaulate_weights_vectors():
-    matrix = np.array(load_raw("judgment_matrix.csv"))
+    matrix = load_raw("judgment_matrix.xlsx").iloc[:, 1:].to_numpy()
     ahp.calaulate_weights_vectors(matrix, WeightVectorType.EIGVEC)
