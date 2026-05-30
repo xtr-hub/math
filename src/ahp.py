@@ -3,6 +3,8 @@ from numpy import ndarray
 from src.data import load_raw
 from enum import Enum
 
+RI = [0, 0.0001, 0.52, 0.89, 1.12, 1.26, 1.36, 1.41, 1.46, 1.49, 1.52, 1.54, 1.56, 1.58, 1.59]
+
 class WeightVectorType(Enum):
     ARIAVE = "ari_ave"
     GEOAVE = "geo_ave"
@@ -29,11 +31,10 @@ def is_valid_judgment_matrix(matrix : ndarray):
         raise ValueError("所有元素必须为正数")
     return True
 
-def calculate_weight_vector(matrix : ndarray, weight_vector_type : WeightVectorType):
+def calculate_weight_vector(matrix : ndarray, n : float, weight_vector_type : WeightVectorType):
     """计算特征值与权重向量
     返回 (lambda_max, weight_vector) — lambda_max 为最大特征值，weight_vector 为归一化权重向量。
     """
-    n = matrix.shape[0]
 
     match weight_vector_type:
         case WeightVectorType.ARIAVE:
@@ -65,11 +66,21 @@ def calculate_weight_vector(matrix : ndarray, weight_vector_type : WeightVectorT
             
 def calculate_weights(matrix : ndarray, weight_vector_type=WeightVectorType.EIGVEC):
     """计算判断矩阵的权重"""
+    n = matrix.shape[0]
+    if n <= 2:
+        print("此矩阵n<=2，一定是一致性矩阵")
+        return
     # 先校验是否是判断矩阵
     is_valid_judgment_matrix(matrix)
-    # 先归一化矩阵
-    
-    # 计算特征向量
+    # 获取最大特征值与权重向量，这里不需要权重向量
+    lambda_max, _ = calculate_weight_vector(matrix, n,  weight_vector_type)
+    print(lambda_max)
     # 利用公式计算CI
+    CI = (lambda_max - n) / (n - 1)
     # 查表获取RI并计算CI/RI
+    CR = CI / RI[n - 1]
     # 最后给出评价
+    if CR < 0.10:
+        print(f"CR为： {CR} ，一致性可以接受")
+    else:
+        print(f"CR为： {CR} ，一致性不可接受")

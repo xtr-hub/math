@@ -5,7 +5,12 @@ import pytest
 from src.data import save_processed
 from src.data import load_raw
 
+matrix = load_raw("judgment_matrix.xlsx").iloc[:, 1:].to_numpy()
+n = matrix.shape[0]
+
 def test_calaulate_weights_vectors():
-    matrix = load_raw("judgment_matrix.xlsx").iloc[:, 1:].to_numpy()
-    ans_val, ans_vec = ahp.calculate_weight_vector(matrix, WeightVectorType.EIGVEC)
+    ans_val, ans_vec = ahp.calculate_weight_vector(matrix, n,  WeightVectorType.EIGVEC)
     print(ans_val, ans_vec)
+
+def test_calaulate_weights():
+    ahp.calculate_weights(matrix, WeightVectorType.EIGVEC)
