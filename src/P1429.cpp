@@ -114,3 +114,81 @@ int main()
   printf("%.4lf",tmp);
   return 0;
 }
+#include<bits/stdc++.h>
+using namespace std;
+typedef struct point{
+    int x;
+    int y;
+}point;
+int n;
+long long MAX=9000000000000000000;
+point P[400010];
+inline int read() {
+    int x = 0, f = 1;
+    char ch = getchar();
+    while (!isdigit(ch)) {
+        if (ch == '-') f = -1;
+        ch = getchar();
+    }
+    while (isdigit(ch)) {
+        x = (x << 1) + (x << 3) + ch - '0';
+        ch = getchar();
+    }
+    return x * f;
+}
+bool com_x(point a,point b){return a.x<b.x;}
+bool com_y(point a,point b){return a.y<b.y;};
+long long cul_dis(point a,point b){return 1LL*(a.x-b.x)*(a.x-b.x)+1LL*(a.y-b.y)*(a.y-b.y);}
+long long cul(int start,int end){
+    long long ans=MAX;
+    //暴力计算
+    for(int i=start;i<end;i++){
+        for(int j=i+1;j<end;j++){
+            long long dis=cul_dis(P[i],P[j]);
+            ans=ans<dis?ans:dis;
+        }
+    }
+    //cout<<ans<<endl;
+    return ans;
+}
+long long solve(int start,int end){//左闭右开
+    if(end-start<=3)return cul(start,end);
+    int mid=(start+end)/2;
+    long long d=min(solve(start,mid),solve(mid,end));//递归计算左右
+    //处理x<mid与x>mid的点
+    vector<point> strip;
+    strip.reserve(end - start);
+    for(int i = start; i < end; i++){
+        long long dx = 1LL * (P[i].x - P[mid].x) * (P[i].x - P[mid].x);
+        if(dx < d){
+            strip.push_back(P[i]);
+        }
+    }
+    // 对中间带按 Y 排序
+    sort(strip.begin(), strip.end(), com_y);
+    for(size_t i = 0; i < strip.size(); i++){
+        for(size_t j = i + 1; j < strip.size(); j++){
+            long long dy = 1LL * (strip[j].y - strip[i].y) * 
+                (strip[j].y - strip[i].y);
+            if(dy >= d) break;
+            d = min(d, cul_dis(strip[i], strip[j]));
+        }
+    }
+    return d;
+}
+inline void read_all(){
+    n=read();
+    for(int i=1;i<=n;i++){
+        int x=read();
+        int y=read();
+        P[i].x=x;
+        P[i].y=y;
+    }
+}
+int main(){
+    read_all();
+    //cout<<n<<endl;
+    sort(P+1,P+n+1,com_x);//对x进行排序
+    cout<<solve(1,n+1)<<endl;
+    return 0;
+}
