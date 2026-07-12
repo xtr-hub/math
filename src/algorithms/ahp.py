@@ -1,7 +1,15 @@
 import numpy as np
 from numpy import ndarray
-from src.data import load_raw
 from enum import Enum
+
+try:
+    from src.io.matrix_io import print_matrix, read_reciprocal_matrix
+except ModuleNotFoundError:
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+    from src.io.matrix_io import print_matrix, read_reciprocal_matrix
 
 RI = [0, 0.0001, 0.52, 0.89, 1.12, 1.26, 1.36, 1.41, 1.46, 1.49, 1.52, 1.54, 1.56, 1.58, 1.59]
 
@@ -84,3 +92,30 @@ def calculate_weights(matrix : ndarray, weight_vector_type=WeightVectorType.EIGV
         print(f"CR为： {CR} ，一致性可以接受")
     else:
         print(f"CR为： {CR} ，一致性不可接受")
+
+def prompt_for_method() -> WeightVectorType:
+    """控制台提示用户选择权重向量计算方法。"""
+    print("\n请选择权重向量计算方法：")
+    print("1. 算术平均法 (ari_ave)")
+    print("2. 几何平均法 (geo_ave)")
+    print("3. 特征向量法 (eig_vec，推荐)")
+    while True:
+        choice = input("请输入选项编号（1/2/3，默认3）：").strip()
+        if choice == "" or choice == "3":
+            return WeightVectorType.EIGVEC
+        if choice == "1":
+            return WeightVectorType.ARIAVE
+        if choice == "2":
+            return WeightVectorType.GEOAVE
+        print("无效选项，请重新输入。")
+
+def interactive_ahp():
+    """控制台交互式 AHP 入口。"""
+    print("=== AHP 层次分析法 ===")
+    matrix = read_reciprocal_matrix()
+    method = prompt_for_method()
+    print_matrix(matrix, title="\n判断矩阵：", decimals=6)
+    calculate_weights(matrix, method)
+
+if __name__ == "__main__":
+    interactive_ahp()

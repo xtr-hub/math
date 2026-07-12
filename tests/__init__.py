@@ -1,7 +1,7 @@
 """Tests for data module."""
 
 import pandas as pd
-from src.data import save_processed
+from src.io.data import save_processed
 from pathlib import Path
 import tempfile
 
