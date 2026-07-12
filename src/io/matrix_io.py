@@ -21,6 +21,25 @@ def read_int(prompt: str, min_value: int | None = None, max_value: int | None = 
         return value
 
 
+def read_ints(
+    prompt: str, count: int | None = None, positive: bool = False
+) -> list[int]:
+    """从控制台读取一行整数数，支持数量和正数校验。"""
+    while True:
+        line = input(prompt).strip()
+        try:
+            values = [int(x) for x in line.split()]
+        except ValueError:
+            print("请输入数字，并用空格分隔。")
+            continue
+        if count is not None and len(values) != count:
+            print(f"需要输入 {count} 个值，实际输入 {len(values)} 个，请重新输入。")
+            continue
+        if positive and any(v <= 0 for v in values):
+            print("所有元素必须为正数，请重新输入。")
+            continue
+        return values
+
 def read_floats(
     prompt: str, count: int | None = None, positive: bool = False
 ) -> list[float]:
