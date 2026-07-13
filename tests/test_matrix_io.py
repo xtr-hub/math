@@ -53,6 +53,10 @@ def test_read_matrix(monkeypatch):
     expected = np.array([[1, 2, 3], [4, 5, 6]])
     assert np.allclose(matrix, expected)
 
+def test_read_ints(monkeypatch):
+    monkeypatch.setattr("builtins.input", lambda _: "1 2 3")
+    assert matrix_io.read_ints("prompt: ") == [1, 2, 3]
+
 
 def test_read_matrix_rejects_wrong_count_then_accepts(monkeypatch):
     inputs = iter(["1 2", "1 2 3", "4 5 6"])
