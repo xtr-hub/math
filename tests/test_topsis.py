@@ -3,7 +3,6 @@ import pytest
 
 import src.algorithms.topsis as topsis
 
-
 SAMPLE_MATRIX = np.array([
     [80.0, 90.0],
     [85.0, 85.0],

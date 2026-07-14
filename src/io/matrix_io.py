@@ -60,6 +60,37 @@ def read_floats(
         return values
 
 
+def read_indicator_params(
+    kinds: list[int],
+) -> tuple[list[float | None], list[tuple[float, float] | None]]:
+    """为中间型(kind==3)和区间型(kind==4)列读取所需参数。
+
+    返回 (best_values, intervals)，非对应类型列的值为 None。
+    """
+    best_values: list[float | None] = []
+    intervals: list[tuple[float, float] | None] = []
+
+    for j, kind in enumerate(kinds):
+        if kind == 3:
+            best = read_floats(f"请输入第 {j + 1} 列（中间型）的最优值：", count=1)[0]
+            best_values.append(best)
+            intervals.append(None)
+        elif kind == 4:
+            print(f"请输入第 {j + 1} 列（区间型）的满意区间：")
+            a = read_floats("  区间下限 a：", count=1)[0]
+            b = read_floats("  区间上限 b：", count=1)[0]
+            while b < a:
+                print("上限必须不小于下限，请重新输入。")
+                b = read_floats("  区间上限 b：", count=1)[0]
+            best_values.append(None)
+            intervals.append((a, b))
+        else:
+            best_values.append(None)
+            intervals.append(None)
+
+    return best_values, intervals
+
+
 def read_reciprocal_matrix() -> ndarray:
     """交互式读取正互反判断矩阵，只输入上三角，下三角自动填充。"""
     print("\n=== 输入判断矩阵 ===")

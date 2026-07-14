@@ -1,17 +1,30 @@
+# ruff: noqa: E402
+import sys
+from pathlib import Path
+
 import numpy as np
 from numpy import ndarray
 
-try:
-    from src.io.matrix_io import read_floats, read_int, read_ints, read_matrix, print_matrix
-except ModuleNotFoundError:
-    import sys
-    from pathlib import Path
+_project_root = Path(__file__).resolve().parent.parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
 
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-    from src.io.matrix_io import read_floats, read_int, read_ints, read_matrix, print_matrix
+from src.io.matrix_io import (
+    print_matrix,
+    read_indicator_params,
+    read_int,
+    read_ints,
+    read_matrix,
+)
+from src.utils.matrix import positive_transform, vector_normalize
 
 
-def convert_indicators(matrix: ndarray, kinds: list[int]) -> ndarray:
+def convert_indicators(
+    matrix: ndarray,
+    kinds: list[int],
+    best_values: list[float | None] | None = None,
+    intervals: list[tuple[float, float] | None] | None = None,
+) -> ndarray:
     """将各类指标统一转化为极大型指标。
 
     kinds 取值：
@@ -19,59 +32,19 @@ def convert_indicators(matrix: ndarray, kinds: list[int]) -> ndarray:
         2 - 极小型
         3 - 中间型
         4 - 区间型
+
+    这是 ``src.utils.matrix.positive_transform`` 的薄包装，
+    保留原名以保持现有接口兼容。
     """
-    n, m = matrix.shape
-    converted = matrix.copy()
-
-    for j in range(m):
-        kind = kinds[j]
-        col = matrix[:, j]
-
-        if kind == 1:
-            continue
-
-        if kind == 2:
-            converted[:, j] = np.max(col) - col
-
-        elif kind == 3:
-            best = read_floats(f"请输入第 {j + 1} 列（中间型）的最优值：", count=1)[0]
-            max_diff = np.max(np.abs(col - best))
-            if max_diff == 0:
-                converted[:, j] = 1.0
-            else:
-                converted[:, j] = 1 - np.abs(col - best) / max_diff
-
-        elif kind == 4:
-            print(f"请输入第 {j + 1} 列（区间型）的满意区间：")
-            a = read_floats("  区间下限 a：", count=1)[0]
-            b = read_floats("  区间上限 b：", count=1)[0]
-            while b < a:
-                print("上限必须不小于下限，请重新输入。")
-                b = read_floats("  区间上限 b：", count=1)[0]
-
-            M = max(a - np.min(col), np.max(col) - b)
-            if M == 0:
-                converted[:, j] = 1.0
-            else:
-                new_col = np.ones(n)
-                below = col < a
-                above = col > b
-                new_col[below] = 1 - (a - col[below]) / M
-                new_col[above] = 1 - (col[above] - b) / M
-                converted[:, j] = new_col
-
-        else:
-            raise ValueError(f"不支持的指标类型：{kind}")
-
-    return converted
+    return positive_transform(matrix, kinds, best_values, intervals)
 
 
 def normalize_matrix(matrix: ndarray) -> ndarray:
-    """向量归一化：每列除以其欧几里得范数。"""
-    norms = np.linalg.norm(matrix, axis=0)
-    if np.any(norms == 0):
-        raise ValueError("存在全零列，无法进行向量归一化。")
-    return matrix / norms
+    """向量归一化：每列除以其欧几里得范数。
+
+    这是 ``src.utils.matrix.vector_normalize`` 的薄包装。
+    """
+    return vector_normalize(matrix)
 
 
 def weighted_normalized_matrix(normalized: ndarray, weights: ndarray) -> ndarray:
@@ -144,11 +117,13 @@ def interactive_topsis():
         if k not in (1, 2, 3, 4):
             raise ValueError(f"指标类型必须是 1/2/3/4 之一，得到 {k}")
 
+    best_values, intervals = read_indicator_params(kinds)
+
     print("\n请输入评价矩阵：")
     matrix = read_matrix(n, m)
 
     print("\n步骤 1：统一转化为极大型指标...")
-    converted = convert_indicators(matrix, kinds)
+    converted = convert_indicators(matrix, kinds, best_values, intervals)
     print_matrix(converted, title="转化后的极大型指标矩阵：")
 
     print("\n步骤 2：向量归一化...")

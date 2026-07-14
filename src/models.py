@@ -1,7 +1,6 @@
 """Modeling utilities."""
 
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.metrics import mean_squared_error, accuracy_score, classification_report
+from sklearn.metrics import classification_report, mean_squared_error
 
 
 def evaluate_model(model, X_test, y_test):

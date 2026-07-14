@@ -1,8 +1,6 @@
 import numpy as np
-import pytest
 
 import src.io.matrix_io as matrix_io
-
 
 SAMPLE_MATRIX = np.array([
     [1, 2, 3],

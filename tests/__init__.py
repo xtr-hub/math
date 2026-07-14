@@ -1,9 +1,9 @@
 """Tests for data module."""
 
-import pandas as pd
-from src.io.data import save_processed
-from pathlib import Path
 import tempfile
+from pathlib import Path
+
+import pandas as pd
 
 
 def test_save_and_load_processed_csv():

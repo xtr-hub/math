@@ -1,7 +1,7 @@
-import src.algorithms.ahp as ahp
-from src.algorithms.ahp import WeightVectorType
 import numpy as np
 
+import src.algorithms.ahp as ahp
+from src.algorithms.ahp import WeightVectorType
 
 SAMPLE_MATRIX = np.array([
     [1, 2, 3],

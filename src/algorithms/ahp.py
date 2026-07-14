@@ -1,15 +1,16 @@
+# ruff: noqa: E402
+import sys
+from enum import Enum
+from pathlib import Path
+
 import numpy as np
 from numpy import ndarray
-from enum import Enum
 
-try:
-    from src.io.matrix_io import print_matrix, read_reciprocal_matrix
-except ModuleNotFoundError:
-    import sys
-    from pathlib import Path
+_project_root = Path(__file__).resolve().parent.parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
 
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-    from src.io.matrix_io import print_matrix, read_reciprocal_matrix
+from src.io.matrix_io import print_matrix, read_reciprocal_matrix
 
 RI = [0, 0.0001, 0.52, 0.89, 1.12, 1.26, 1.36, 1.41, 1.46, 1.49, 1.52, 1.54, 1.56, 1.58, 1.59]
 
@@ -33,7 +34,10 @@ def is_valid_judgment_matrix(matrix : ndarray):
     for i in range(n):
         for j in range(i + 1, n):
             if not np.isclose(matrix[j, i], 1 / matrix[i, j]):
-                raise ValueError(f"不满足互反性: a[{i},{j}]={matrix[i, j]}, a[{j},{i}]={matrix[j, i]}")
+                raise ValueError(
+                    f"不满足互反性: a[{i},{j}]={matrix[i, j]}, "
+                    f"a[{j},{i}]={matrix[j, i]}"
+                )
 
     if np.any(matrix <= 0):
         raise ValueError("所有元素必须为正数")
