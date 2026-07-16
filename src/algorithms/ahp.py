@@ -64,6 +64,7 @@ def calculate_weight_vector(matrix : ndarray, n : float, weight_vector_type : We
 
         case WeightVectorType.EIGVEC:
             # 特征向量法: 最大特征值对应的特征向量, 归一化
+            
             eig_vals, eig_vecs = np.linalg.eig(matrix)
             max_idx = np.argmax(np.real(eig_vals))  # 实部最大的特征值索引
             weight = np.real(eig_vecs[:, max_idx])  # 取对应特征向量的实部

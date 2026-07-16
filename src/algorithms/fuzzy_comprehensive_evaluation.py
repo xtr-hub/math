@@ -46,7 +46,7 @@ class FuzzyOperator(Enum):
 
 
 class MembershipMethod(Enum):
-    """隶属度矩阵自动生成方法。"""
+    """隶属度矩阵读取"""
 
     TRAPEZOID = "trapezoid"  # 梯形隶属函数
     PIECEWISE = "piecewise"  # 分段硬划分
